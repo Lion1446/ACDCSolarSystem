@@ -8,7 +8,7 @@ class DataProviders extends ChangeNotifier {
   double sunBrightness = 100.0;
   double minSunBrightness = 70.0;
   double soilMoisture = 40.0;
-  double soilMoistureThreshold = 30.0;
+  double soilMoistureThreshold = 50.0;
   double soilDryingRate = 1.0;
   double soilDryingRateThreshold = 1.0;
   double soilMoisteningRate = 10.0;
@@ -17,7 +17,7 @@ class DataProviders extends ChangeNotifier {
   bool systemSwitch = true;
 
   bool reverseOsmosisSwitch = true;
-  double roBatteryDrainRate = 3.0;
+  double roBatteryDrainRate = 1.0;
   double solarPanelVoltage = 12;
   double solarPanelMaxVoltage = 12;
   double batteryChargeRate = 1.0;
@@ -25,9 +25,9 @@ class DataProviders extends ChangeNotifier {
 
   bool pumpSwitch = true;
   double waterFlowRate = 50.0;
-  bool toWaterTank = true;
-  bool waterTankSwitch = true;
-  double pumpBatteryDrainRate = 5.0;
+  int toWaterTank = 0;
+  bool waterTankSwitch = false;
+  double pumpBatteryDrainRate = 2.0;
 
   double waterVolume = 0.0;
   double maxWaterVolume = 100.0;
@@ -37,6 +37,7 @@ class DataProviders extends ChangeNotifier {
   double maxPotableWaterVolume = 100.0;
 
   bool toHousehold = false;
+  bool sprinklerSwitch = true;
 
   late TextEditingController batteryPercentageController;
   late TextEditingController batteryIdleDrainRateController;
@@ -55,6 +56,46 @@ class DataProviders extends ChangeNotifier {
   late TextEditingController waterVolumeThresholdController;
   late TextEditingController waterMaxVolumentController;
   late TextEditingController roBatteryDrainRateController;
+
+  reset() {
+    batteryPercentage = 90.0;
+    batteryPercentageThreshold = 20.0;
+    batteryVoltage = 12.0;
+    batteryIdleDrainRate = 0.1;
+    sunBrightness = 100.0;
+    minSunBrightness = 70.0;
+    soilMoisture = 40.0;
+    soilMoistureThreshold = 50.0;
+    soilDryingRate = 1.0;
+    soilDryingRateThreshold = 1.0;
+    soilMoisteningRate = 10.0;
+    soilMoisteningRateThreshold = 1.0;
+
+    systemSwitch = true;
+
+    reverseOsmosisSwitch = true;
+    roBatteryDrainRate = 1.0;
+    solarPanelVoltage = 12;
+    solarPanelMaxVoltage = 12;
+    batteryChargeRate = 1.0;
+    roSwitch = true;
+
+    pumpSwitch = true;
+    waterFlowRate = 50.0;
+    toWaterTank = 0;
+    waterTankSwitch = false;
+    pumpBatteryDrainRate = 2.0;
+
+    waterVolume = 0.0;
+    maxWaterVolume = 100.0;
+    waterVolumeThreshold = 90.0;
+
+    potableWaterVolume = 0.0;
+    maxPotableWaterVolume = 100.0;
+
+    toHousehold = false;
+    sprinklerSwitch = true;
+  }
 
   setup() {
     batteryVoltage = solarPanelMaxVoltage;
@@ -332,7 +373,7 @@ class DataProviders extends ChangeNotifier {
     });
   }
 
-  setToWaterTank(bool val) {
+  setToWaterTank(int val) {
     toWaterTank = val;
     notifyListeners();
   }

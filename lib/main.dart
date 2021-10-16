@@ -46,6 +46,7 @@ class SimulationPage extends StatefulWidget {
 }
 
 class _SimulationPageState extends State<SimulationPage> {
+  bool played = false;
   double gearAngle = 0.0;
   double pipe0 = 0;
   double pipe1 = 0;
@@ -67,8 +68,33 @@ class _SimulationPageState extends State<SimulationPage> {
   double pipeAdder = 10;
   late DataProviders dataStates;
   double pipeWidth = 5.0;
-
   double sprinkle = -1;
+
+  void restart() {
+    played = false;
+    dataStates.reset();
+    gearAngle = 0.0;
+    pipe0 = 0;
+    pipe1 = 0;
+    pipe2 = 0;
+    pipe3 = 0;
+    pipe4 = 0;
+    pipe5 = 0;
+    pipe6 = 0;
+    pipe7 = 0;
+    pipe8 = 0;
+    pipe9 = 0;
+    pipe10 = 0;
+    pipe11 = 0;
+    pipe12 = 0;
+    pipe13 = 0;
+    pipe14 = 0;
+    tankWaterFlow = 0;
+    potableTankWaterFlow = 0;
+    pipeAdder = 10;
+    pipeWidth = 5.0;
+    sprinkle = -1;
+  }
 
   @override
   void initState() {
@@ -78,303 +104,40 @@ class _SimulationPageState extends State<SimulationPage> {
       dataStates.setup();
     });
     Timer.periodic(Duration(milliseconds: 1), (timer) {
-      if (dataStates.soilMoisture > 0) {
-        dataStates.soilMoisture -= (dataStates.soilDryingRate / 100);
-        dataStates.soilMoistureController.text =
-            dataStates.soilMoisture.toStringAsFixed(2);
+      dataStates.batteryPercentage -= (dataStates.batteryIdleDrainRate / 100);
+      if (dataStates.sunBrightness >= dataStates.minSunBrightness) {
+        dataStates.batteryPercentage += (dataStates.batteryChargeRate / 100);
       }
-      if (dataStates.potableWaterVolume / dataStates.maxPotableWaterVolume >=
-          0.2) {
-        if (dataStates.toHousehold) {
-          if (pipe13 < 5) {
-            pipe13 += pipeAdder;
-            if (pipe13 > 5) pipe13 = 5;
-          } else {
-            if (pipe14 < 172) {
-              pipe14 += pipeAdder;
-              if (pipe14 > 172) pipe14 = 172;
-            } else {
-              dataStates.potableWaterVolume -=
-                  (dataStates.waterFlowRate / 1000);
-            }
-          }
+      dataStates.soilMoisture -= dataStates.soilDryingRate / 100;
+      if (dataStates.toHousehold &&
+          dataStates.potableWaterVolume / dataStates.maxPotableWaterVolume >=
+              0.2) {
+        dataStates.potableWaterVolume -= dataStates.waterFlowRate / 1000;
+        if (pipe13 < 5) {
+          pipe13 += pipeAdder;
+          if (pipe13 > 5) pipe13 = 5;
         } else {
-          if (pipe14 > 0) {
-            pipe14 -= pipeAdder;
-            if (pipe14 < 0) pipe14 = 0;
-          } else {
-            if (pipe13 > 0) {
-              pipe13 -= pipeAdder;
-              if (pipe13 < 0) pipe13 = 0;
-            }
-          }
-        }
-      }
-      if (dataStates.waterVolume < dataStates.waterVolumeThreshold) {
-        dataStates.waterTankSwitch = true;
-      }
-      if (dataStates.waterVolume >= dataStates.waterVolumeThreshold) {
-        dataStates.waterTankSwitch = false;
-      }
-      if (tankWaterFlow >= 110) {
-        dataStates.waterVolume += (dataStates.waterFlowRate / 1000);
-        dataStates.waterVolumeController.text =
-            dataStates.waterVolume.toStringAsFixed(2);
-      }
-      if (potableTankWaterFlow >= 110) {
-        if (dataStates.potableWaterVolume < dataStates.maxPotableWaterVolume) {
-          dataStates.waterVolume -= (dataStates.waterFlowRate / 1000);
-          dataStates.potableWaterVolume += dataStates.waterFlowRate / 1000;
-        }
-      }
-      if (dataStates.waterVolume / dataStates.maxWaterVolume > 0.2 &&
-          dataStates.potableWaterVolume < dataStates.maxPotableWaterVolume &&
-          dataStates.roSwitch &&
-          dataStates.systemSwitch) {
-        if (pipe8 < 86.5) {
-          pipe8 += pipeAdder;
-          if (pipe8 > 86.5) pipe8 = 86.5;
-        } else {
-          if (pipe9 < 15) {
-            pipe9 += pipeAdder;
-            if (pipe9 > 15) pipe9 = 15;
-          } else {
-            if (pipe10 < 113) {
-              pipe10 += pipeAdder;
-              if (pipe10 > 113) pipe10 = 113;
-            } else {
-              if (pipe11 < 57) {
-                pipe11 += pipeAdder;
-                if (pipe11 > 57) pipe11 = 57;
-              } else {
-                if (pipe12 < 6) {
-                  pipe12 += pipeAdder;
-                  if (pipe12 > 6) pipe12 = 12;
-                } else {
-                  if (potableTankWaterFlow < 110) {
-                    potableTankWaterFlow += pipeAdder;
-                    if (potableTankWaterFlow > 110) potableTankWaterFlow = 110;
-                  } else {}
-                }
-              }
-            }
+          if (pipe14 < 172) {
+            pipe14 += pipeAdder;
+            if (pipe14 > 172) pipe14 = 172;
           }
         }
       } else {
-        if (potableTankWaterFlow != 0) {
-          potableTankWaterFlow = 0;
+        if (pipe14 > 0) {
+          pipe14 -= pipeAdder;
+          if (pipe14 < 0) pipe14 = 0;
         } else {
-          if (pipe12 > 0) {
-            pipe12 -= pipeAdder;
-            if (pipe12 < 0) pipe12 = 0;
-          } else {
-            if (pipe11 > 0) {
-              pipe11 -= pipeAdder;
-              if (pipe11 < 0) pipe11 = 0;
-            } else {
-              if (pipe10 > 0) {
-                pipe10 -= pipeAdder;
-                if (pipe10 < 0) pipe10 = 0;
-              } else {
-                if (pipe9 > 0) {
-                  pipe9 -= pipeAdder;
-                  if (pipe9 < 0) pipe9 = 0;
-                } else {
-                  if (pipe8 > 0) {
-                    pipe8 -= pipeAdder;
-                    if (pipe8 < 0) pipe8 = 0;
-                  }
-                }
-              }
-            }
+          if (pipe13 > 0) {
+            pipe13 -= pipeAdder;
+            if (pipe13 < 0) pipe13 = 0;
           }
         }
       }
-      if (dataStates.batteryPercentage >
-              dataStates.batteryPercentageThreshold ||
-          dataStates.solarPanelVoltage > dataStates.solarPanelMaxVoltage - 3) {
-        if (dataStates.systemSwitch && dataStates.pumpSwitch) {
-          if (dataStates.toWaterTank) {
-            sprinkle = -1;
-            if (pipe7 > 0) {
-              pipe7 -= pipeAdder;
-              if (pipe7 < 0) pipe7 = 0;
-            } else {
-              if (pipe6 > 0) {
-                pipe6 -= pipeAdder;
-                if (pipe6 < 0) pipe6 = 0;
-              }
-            }
-            if (dataStates.waterTankSwitch) {
-              gearAngle += 2;
-              if (pipe0 < 122) {
-                pipe0 += pipeAdder;
-                if (pipe0 > 122) pipe0 = 122;
-              } else {
-                if (pipe1 < 167) {
-                  pipe1 += pipeAdder;
-                  if (pipe1 > 167) pipe1 = 167;
-                } else {
-                  if (pipe2 < 154) {
-                    pipe2 += pipeAdder;
-                    if (pipe2 > 154) pipe2 = 154;
-                  } else {
-                    if (pipe3 < 135) {
-                      pipe3 += pipeAdder;
-                      if (pipe3 > 135) pipe3 = 135;
-                    } else {
-                      if (pipe4 < 58) {
-                        pipe4 += pipeAdder;
-                        if (pipe4 > 58) pipe4 = 58;
-                      } else {
-                        if (pipe5 < 10) {
-                          pipe5 += pipeAdder;
-                          if (pipe5 > 10) pipe5 = 10;
-                        } else {
-                          if (tankWaterFlow < 110) {
-                            tankWaterFlow += pipeAdder;
-                            if (tankWaterFlow > 110) tankWaterFlow = 110;
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            } else {
-              if (tankWaterFlow != 0) {
-                tankWaterFlow = 0;
-              } else {
-                if (pipe5 > 0) {
-                  pipe5 -= pipeAdder;
-                  if (pipe5 < 0) pipe5 = 0;
-                } else {
-                  if (pipe4 > 0) {
-                    pipe4 -= pipeAdder;
-                    if (pipe4 < 0) pipe4 = 0;
-                  } else {
-                    if (pipe3 > 0) {
-                      pipe3 -= pipeAdder;
-                      if (pipe3 < 0) pipe3 = 0;
-                    } else {
-                      if (pipe2 > 0) {
-                        pipe2 -= pipeAdder;
-                        if (pipe2 < 0) pipe2 = 0;
-                      } else {
-                        if (pipe1 > 0) {
-                          pipe1 -= pipeAdder;
-                          if (pipe1 < 0) {
-                            pipe1 = 0;
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          } else {
-            gearAngle += 1;
-            if (pipe0 < 122) {
-              pipe0 += pipeAdder;
-              if (pipe0 > 122) pipe0 = 122;
-            } else {
-              if (pipe6 < 932) {
-                pipe6 += pipeAdder;
-                if (pipe6 > 932) pipe6 = 932;
-              } else {
-                if (pipe7 < 10) {
-                  pipe7 += pipeAdder;
-                  if (pipe7 > 10) pipe7 = 10;
-                } else {
-                  sprinkle += 0.1;
-                  if (sprinkle > 11) sprinkle = 0;
-                  if (dataStates.soilMoisture < 100) {
-                    dataStates.soilMoisture +=
-                        (dataStates.soilMoisteningRate / 100);
-                    dataStates.soilMoistureController.text =
-                        dataStates.soilMoisture.toStringAsFixed(2);
-                    if (dataStates.soilMoisture > 100)
-                      dataStates.soilMoisture = 100;
-                  }
-                }
-              }
-            }
-
-            if (tankWaterFlow != 0) {
-              tankWaterFlow = 0;
-            } else {
-              if (pipe5 > 0) {
-                pipe5 -= pipeAdder;
-                if (pipe5 < 0) pipe5 = 0;
-              } else {
-                if (pipe4 > 0) {
-                  pipe4 -= pipeAdder;
-                  if (pipe4 < 0) pipe4 = 0;
-                } else {
-                  if (pipe3 > 0) {
-                    pipe3 -= pipeAdder;
-                    if (pipe3 < 0) pipe3 = 0;
-                  } else {
-                    if (pipe2 > 0) {
-                      pipe2 -= pipeAdder;
-                      if (pipe2 < 0) pipe2 = 0;
-                    } else {
-                      if (pipe1 > 0) {
-                        pipe1 -= pipeAdder;
-                        if (pipe1 < 0) {
-                          pipe1 = 0;
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        } else {
-          if (pipe7 > 0) {
-            pipe7 -= pipeAdder;
-            if (pipe7 < 0) pipe7 = 0;
-          } else {
-            if (pipe6 > 0) {
-              pipe6 -= pipeAdder;
-              if (pipe6 < 0) pipe6 = 0;
-            }
-          }
-          if (tankWaterFlow != 0) {
-            tankWaterFlow = 0;
-          } else {
-            if (pipe5 > 0) {
-              pipe5 -= pipeAdder;
-              if (pipe5 < 0) pipe5 = 0;
-            } else {
-              if (pipe4 > 0) {
-                pipe4 -= pipeAdder;
-                if (pipe4 < 0) pipe4 = 0;
-              } else {
-                if (pipe3 > 0) {
-                  pipe3 -= pipeAdder;
-                  if (pipe3 < 0) pipe3 = 0;
-                } else {
-                  if (pipe2 > 0) {
-                    pipe2 -= pipeAdder;
-                    if (pipe2 < 0) pipe2 = 0;
-                  } else {
-                    if (pipe1 > 0) {
-                      pipe1 -= pipeAdder;
-                      if (pipe1 < 0) {
-                        pipe1 = 0;
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      } else {
+      if (dataStates.sunBrightness < dataStates.minSunBrightness &&
+          dataStates.batteryPercentage <
+              dataStates.batteryPercentageThreshold) {
         dataStates.systemSwitch = false;
+        sprinkle = -1;
         if (pipe7 > 0) {
           pipe7 -= pipeAdder;
           if (pipe7 < 0) pipe7 = 0;
@@ -382,6 +145,11 @@ class _SimulationPageState extends State<SimulationPage> {
           if (pipe6 > 0) {
             pipe6 -= pipeAdder;
             if (pipe6 < 0) pipe6 = 0;
+          } else {
+            if (pipe0 > 0) {
+              pipe0 -= pipeAdder;
+              if (pipe0 < 0) pipe0 = 0;
+            }
           }
         }
         if (tankWaterFlow != 0) {
@@ -415,15 +183,352 @@ class _SimulationPageState extends State<SimulationPage> {
           }
         }
       }
-      if (pipe1 == 0 &&
-          pipe6 == 0 &&
-          dataStates.toWaterTank &&
-          dataStates.waterVolume >= dataStates.waterVolumeThreshold) {
-        if (pipe0 > 0) {
-          pipe0 -= pipeAdder;
-          if (pipe0 < 0) pipe0 = 0;
+      if (dataStates.sunBrightness >= dataStates.minSunBrightness ||
+          dataStates.batteryPercentage >=
+              dataStates.batteryPercentageThreshold) {
+        if (dataStates.roSwitch && dataStates.systemSwitch) {
+          if ((dataStates.waterVolume / dataStates.maxWaterVolume) >= 0.2 &&
+              dataStates.potableWaterVolume <
+                  dataStates.maxPotableWaterVolume) {
+            dataStates.batteryPercentage -= dataStates.roBatteryDrainRate / 100;
+            if (potableTankWaterFlow > 0) {
+              if (dataStates.potableWaterVolume <
+                  dataStates.maxPotableWaterVolume) {
+                dataStates.potableWaterVolume +=
+                    (dataStates.waterFlowRate / 1000);
+                dataStates.waterVolume -= (dataStates.waterFlowRate / 1000);
+              }
+            }
+
+            if (pipe8 < 86.5) {
+              pipe8 += pipeAdder;
+              if (pipe8 > 86.5) pipe8 = 86.5;
+            } else {
+              if (pipe9 < 15) {
+                pipe9 += pipeAdder;
+                if (pipe9 > 15) pipe9 = 15;
+              } else {
+                if (pipe10 < 113) {
+                  pipe10 += pipeAdder;
+                  if (pipe10 > 113) pipe10 = 113;
+                } else {
+                  if (pipe11 < 57) {
+                    pipe11 += pipeAdder;
+                    if (pipe11 > 57) pipe11 = 57;
+                  } else {
+                    if (pipe12 < 6) {
+                      pipe12 += pipeAdder;
+                      if (pipe12 > 6) pipe12 = 12;
+                    } else {
+                      if (potableTankWaterFlow < 110) {
+                        potableTankWaterFlow += pipeAdder;
+                        if (potableTankWaterFlow > 110)
+                          potableTankWaterFlow = 110;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          } else {
+            if (potableTankWaterFlow != 0) {
+              potableTankWaterFlow = 0;
+            } else {
+              if (pipe12 > 0) {
+                pipe12 -= pipeAdder;
+                if (pipe12 < 0) pipe12 = 0;
+              } else {
+                if (pipe11 > 0) {
+                  pipe11 -= pipeAdder;
+                  if (pipe11 < 0) pipe11 = 0;
+                } else {
+                  if (pipe10 > 0) {
+                    pipe10 -= pipeAdder;
+                    if (pipe10 < 0) pipe10 = 0;
+                  } else {
+                    if (pipe9 > 0) {
+                      pipe9 -= pipeAdder;
+                      if (pipe9 < 0) pipe9 = 0;
+                    } else {
+                      if (pipe8 > 0) {
+                        pipe8 -= pipeAdder;
+                        if (pipe8 < 0) pipe8 = 0;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } else {
+          if (potableTankWaterFlow != 0) {
+            potableTankWaterFlow = 0;
+          } else {
+            if (pipe12 > 0) {
+              pipe12 -= pipeAdder;
+              if (pipe12 < 0) pipe12 = 0;
+            } else {
+              if (pipe11 > 0) {
+                pipe11 -= pipeAdder;
+                if (pipe11 < 0) pipe11 = 0;
+              } else {
+                if (pipe10 > 0) {
+                  pipe10 -= pipeAdder;
+                  if (pipe10 < 0) pipe10 = 0;
+                } else {
+                  if (pipe9 > 0) {
+                    pipe9 -= pipeAdder;
+                    if (pipe9 < 0) pipe9 = 0;
+                  } else {
+                    if (pipe8 > 0) {
+                      pipe8 -= pipeAdder;
+                      if (pipe8 < 0) pipe8 = 0;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (dataStates.pumpSwitch && dataStates.systemSwitch) {
+          if (tankWaterFlow > 0) {
+            if (dataStates.waterVolume < dataStates.waterVolumeThreshold) {
+              dataStates.waterVolume += (dataStates.waterFlowRate / 1000);
+              dataStates.batteryPercentage -=
+                  dataStates.pumpBatteryDrainRate / 100;
+            } else {
+              if (dataStates.soilMoisture < dataStates.soilMoistureThreshold) {
+                dataStates.toWaterTank = 1;
+              } else {
+                dataStates.toWaterTank = 2;
+              }
+            }
+          }
+
+          if (dataStates.soilMoisture < dataStates.soilMoistureThreshold)
+            dataStates.waterTankSwitch = true;
+
+          if (dataStates.soilMoisture >= 100) {
+            dataStates.waterTankSwitch = false;
+          }
+
+          if (dataStates.waterVolume < dataStates.waterVolumeThreshold &&
+              dataStates.waterTankSwitch == false) {
+            dataStates.toWaterTank = 0;
+          } else {
+            if (dataStates.soilMoisture < dataStates.soilMoistureThreshold) {
+              dataStates.toWaterTank = 1;
+            }
+          }
+          if (dataStates.toWaterTank == 0) {
+            gearAngle++;
+
+            sprinkle = -1;
+            if (pipe7 > 0) {
+              pipe7 -= pipeAdder;
+              if (pipe7 < 0) pipe7 = 0;
+            } else {
+              if (pipe6 > 0) {
+                pipe6 -= pipeAdder;
+                if (pipe6 < 0) pipe6 = 0;
+              } else {}
+            }
+            if (pipe0 < 122) {
+              pipe0 += pipeAdder;
+              if (pipe0 > 122) pipe0 = 122;
+            } else {
+              if (pipe1 < 167) {
+                pipe1 += pipeAdder;
+                if (pipe1 > 167) pipe1 = 167;
+              } else {
+                if (pipe2 < 154) {
+                  pipe2 += pipeAdder;
+                  if (pipe2 > 154) pipe2 = 154;
+                } else {
+                  if (pipe3 < 135) {
+                    pipe3 += pipeAdder;
+                    if (pipe3 > 135) pipe3 = 135;
+                  } else {
+                    if (pipe4 < 58) {
+                      pipe4 += pipeAdder;
+                      if (pipe4 > 58) pipe4 = 58;
+                    } else {
+                      if (pipe5 < 10) {
+                        pipe5 += pipeAdder;
+                        if (pipe5 > 10) pipe5 = 10;
+                      } else {
+                        if (tankWaterFlow < 110) {
+                          tankWaterFlow += pipeAdder;
+                          if (tankWaterFlow > 110) tankWaterFlow = 110;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          } else if (dataStates.toWaterTank == 1) {
+            gearAngle++;
+            if (tankWaterFlow != 0) {
+              tankWaterFlow = 0;
+            } else {
+              if (pipe5 > 0) {
+                pipe5 -= pipeAdder;
+                if (pipe5 < 0) pipe5 = 0;
+              } else {
+                if (pipe4 > 0) {
+                  pipe4 -= pipeAdder;
+                  if (pipe4 < 0) pipe4 = 0;
+                } else {
+                  if (pipe3 > 0) {
+                    pipe3 -= pipeAdder;
+                    if (pipe3 < 0) pipe3 = 0;
+                  } else {
+                    if (pipe2 > 0) {
+                      pipe2 -= pipeAdder;
+                      if (pipe2 < 0) pipe2 = 0;
+                    } else {
+                      if (pipe1 > 0) {
+                        pipe1 -= pipeAdder;
+                        if (pipe1 < 0) {
+                          pipe1 = 0;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            if (pipe0 < 122) {
+              pipe0 += pipeAdder;
+              if (pipe0 > 122) pipe0 = 122;
+            } else {
+              if (pipe6 < 932) {
+                pipe6 += pipeAdder;
+                if (pipe6 > 932) pipe6 = 932;
+              } else {
+                if (pipe7 < 10) {
+                  pipe7 += pipeAdder;
+                  if (pipe7 > 10) pipe7 = 10;
+                } else {
+                  sprinkle += 0.1;
+                  if (sprinkle > 11) sprinkle = 0;
+                  dataStates.soilMoisture +=
+                      dataStates.soilMoisteningRate / 100;
+                  if (dataStates.soilMoisture > 100) {
+                    dataStates.soilMoisture = 100;
+                    dataStates.waterTankSwitch = false;
+                    sprinkle = -1;
+                    if (dataStates.waterVolume <
+                        dataStates.waterVolumeThreshold) {
+                      dataStates.toWaterTank = 0;
+                    } else {
+                      dataStates.toWaterTank = 2;
+                    }
+                  }
+                }
+              }
+            }
+          } else {
+            if (pipe7 > 0) {
+              pipe7 -= pipeAdder;
+              if (pipe7 < 0) pipe7 = 0;
+            } else {
+              if (pipe6 > 0) {
+                pipe6 -= pipeAdder;
+                if (pipe6 < 0) pipe6 = 0;
+              } else {
+                if (pipe0 > 0) {
+                  pipe0 -= pipeAdder;
+                  if (pipe0 < 0) pipe0 = 0;
+                }
+              }
+            }
+            if (tankWaterFlow != 0) {
+              tankWaterFlow = 0;
+            } else {
+              if (pipe5 > 0) {
+                pipe5 -= pipeAdder;
+                if (pipe5 < 0) pipe5 = 0;
+              } else {
+                if (pipe4 > 0) {
+                  pipe4 -= pipeAdder;
+                  if (pipe4 < 0) pipe4 = 0;
+                } else {
+                  if (pipe3 > 0) {
+                    pipe3 -= pipeAdder;
+                    if (pipe3 < 0) pipe3 = 0;
+                  } else {
+                    if (pipe2 > 0) {
+                      pipe2 -= pipeAdder;
+                      if (pipe2 < 0) pipe2 = 0;
+                    } else {
+                      if (pipe1 > 0) {
+                        pipe1 -= pipeAdder;
+                        if (pipe1 < 0) {
+                          pipe1 = 0;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } else {
+          sprinkle = -1;
+          if (pipe7 > 0) {
+            pipe7 -= pipeAdder;
+            if (pipe7 < 0) pipe7 = 0;
+          } else {
+            if (pipe6 > 0) {
+              pipe6 -= pipeAdder;
+              if (pipe6 < 0) pipe6 = 0;
+            } else {
+              if (pipe0 > 0) {
+                pipe0 -= pipeAdder;
+                if (pipe0 < 0) pipe0 = 0;
+              }
+            }
+          }
+          if (tankWaterFlow != 0) {
+            tankWaterFlow = 0;
+          } else {
+            if (pipe5 > 0) {
+              pipe5 -= pipeAdder;
+              if (pipe5 < 0) pipe5 = 0;
+            } else {
+              if (pipe4 > 0) {
+                pipe4 -= pipeAdder;
+                if (pipe4 < 0) pipe4 = 0;
+              } else {
+                if (pipe3 > 0) {
+                  pipe3 -= pipeAdder;
+                  if (pipe3 < 0) pipe3 = 0;
+                } else {
+                  if (pipe2 > 0) {
+                    pipe2 -= pipeAdder;
+                    if (pipe2 < 0) pipe2 = 0;
+                  } else {
+                    if (pipe1 > 0) {
+                      pipe1 -= pipeAdder;
+                      if (pipe1 < 0) {
+                        pipe1 = 0;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
+      dataStates.soilMoistureController.text =
+          dataStates.soilMoisture.toStringAsFixed(2);
+      dataStates.waterVolumeController.text =
+          dataStates.waterVolume.toStringAsFixed(2);
+      dataStates.batteryPercentageController.text =
+          dataStates.batteryPercentage.toStringAsFixed(2);
       setState(() {});
     });
   }
@@ -507,29 +612,60 @@ class _SimulationPageState extends State<SimulationPage> {
                       alignment: Alignment.topLeft,
                       child: Padding(
                         padding: EdgeInsets.only(left: 20, top: 20),
-                        child: InkWell(
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                          child: Container(
-                            height: 60,
-                            width: 60,
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(40),
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 4,
-                                    offset: Offset(1, 1),
-                                    color: Colors.black.withOpacity(0.1),
-                                  )
-                                ]),
-                            child: Center(
-                              child: Icon(Icons.menu),
+                        child: Column(
+                          children: [
+                            InkWell(
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () {
+                                Scaffold.of(context).openDrawer();
+                              },
+                              child: Container(
+                                height: 60,
+                                width: 60,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(40),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 4,
+                                        offset: Offset(1, 1),
+                                        color: Colors.black.withOpacity(0.1),
+                                      )
+                                    ]),
+                                child: Center(
+                                  child: Icon(Icons.menu),
+                                ),
+                              ),
                             ),
-                          ),
+                            Padding(
+                              padding: EdgeInsets.only(top: 20),
+                              child: InkWell(
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: () {
+                                  restart();
+                                },
+                                child: Container(
+                                  height: 60,
+                                  width: 60,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(40),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          blurRadius: 4,
+                                          offset: Offset(1, 1),
+                                          color: Colors.black.withOpacity(0.1),
+                                        )
+                                      ]),
+                                  child: Center(
+                                    child: Icon(Icons.restart_alt_outlined),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -973,12 +1109,18 @@ class _SimulationPageState extends State<SimulationPage> {
                               bottom: 122,
                               left: 81,
                               child: Transform.rotate(
-                                angle:
-                                    dataStates.toWaterTank ? -math.pi / 2 : 0,
+                                angle: dataStates.toWaterTank == 0
+                                    ? -math.pi / 2
+                                    : dataStates.toWaterTank == 1
+                                        ? 0
+                                        : -math.pi / 2,
                                 child: InkWell(
                                   onTap: () {
-                                    dataStates.setToWaterTank(
-                                        !dataStates.toWaterTank);
+                                    if (dataStates.toWaterTank == 0) {
+                                      dataStates.setToWaterTank(1);
+                                    } else {
+                                      dataStates.setToWaterTank(0);
+                                    }
                                   },
                                   child: Icon(
                                     Icons.arrow_forward,

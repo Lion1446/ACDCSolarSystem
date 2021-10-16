@@ -119,7 +119,7 @@ class WaterPump extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      dataStates.toWaterTank ? "water tank" : "sprinkler",
+                      dataStates.toWaterTank == 0 ? "water tank" : "sprinkler",
                       style: fonts.component.copyWith(
                         color: green.withOpacity(0.7),
                       ),
