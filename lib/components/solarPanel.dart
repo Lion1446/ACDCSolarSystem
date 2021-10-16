@@ -1,31 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:solarpumpingsystem/themes.dart';
+
+import '../providers.dart';
 
 class SolarPanel extends StatelessWidget {
   const SolarPanel({
     Key? key,
-    required this.solarPanelVoltageController,
-    required this.batteryChargeRateController,
-    required this.solarPanelMaxVoltageController,
-    required this.minSunBrightnessController,
-    required this.solarPanelVoltage,
-    required this.solarPanelMaxVoltage,
-    required this.minSunBrightness,
-    required this.batteryChargeRate,
   }) : super(key: key);
-
-  final TextEditingController solarPanelVoltageController;
-  final TextEditingController batteryChargeRateController;
-  final TextEditingController solarPanelMaxVoltageController;
-  final TextEditingController minSunBrightnessController;
-  final double solarPanelVoltage;
-  final double solarPanelMaxVoltage;
-  final double minSunBrightness;
-  final double batteryChargeRate;
 
   @override
   Widget build(BuildContext context) {
+    var dataStates = Provider.of<DataProviders>(context);
     return Container(
       width: 330,
       padding: EdgeInsets.all(10),
@@ -66,9 +53,9 @@ class SolarPanel extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      solarPanelVoltage.toString(),
+                      dataStates.solarPanelVoltage.toStringAsFixed(2),
                       style: fonts.component.copyWith(
-                        color: solarPanelVoltage != 0
+                        color: dataStates.solarPanelVoltage != 0
                             ? green.withOpacity(0.7)
                             : red.withOpacity(0.7),
                       ),
@@ -96,14 +83,14 @@ class SolarPanel extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: solarPanelMaxVoltageController,
+                      controller: dataStates.solarPanelMaxVoltageController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$solarPanelMaxVoltage',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
@@ -132,19 +119,20 @@ class SolarPanel extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: minSunBrightnessController,
+                      controller: dataStates.minSunBrightnessController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$minSunBrightness',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: minSunBrightness == 100 ? red : green),
+                        color: dataStates.minSunBrightness == 100 ? red : green,
+                      ),
                     ),
                   ),
                 ),
@@ -169,19 +157,21 @@ class SolarPanel extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: batteryChargeRateController,
+                      controller: dataStates.batteryChargeRateController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$batteryChargeRate',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: batteryChargeRate >= 100 ? red : green),
+                        color:
+                            dataStates.batteryChargeRate >= 100 ? red : green,
+                      ),
                     ),
                   ),
                 ),

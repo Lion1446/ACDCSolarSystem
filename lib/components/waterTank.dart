@@ -1,26 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 import 'package:solarpumpingsystem/themes.dart';
 
+import '../providers.dart';
+
 class WaterTank extends StatelessWidget {
-  const WaterTank({
-    Key? key,
-    required this.waterVolumeController,
-    required this.waterVolumeThresholdController,
-    required this.waterMaxVolumentController,
-    required this.waterVolume,
-    required this.waterVolumeThreshold,
-    required this.waterMaxVolume,
-  }) : super(key: key);
-  final TextEditingController waterVolumeController;
-  final TextEditingController waterVolumeThresholdController;
-  final TextEditingController waterMaxVolumentController;
-  final double waterVolume;
-  final double waterVolumeThreshold;
-  final double waterMaxVolume;
+  const WaterTank({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    var dataStates = Provider.of<DataProviders>(context);
     return Container(
       width: 330,
       padding: EdgeInsets.all(10),
@@ -60,21 +50,23 @@ class WaterTank extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: waterVolumeController,
+                      controller: dataStates.waterVolumeController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$waterVolume',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: waterVolume >= waterVolumeThreshold
-                              ? green
-                              : red),
+                        color: dataStates.waterVolume >=
+                                dataStates.waterVolumeThreshold
+                            ? green
+                            : red,
+                      ),
                     ),
                   ),
                 ),
@@ -99,19 +91,22 @@ class WaterTank extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: waterVolumeThresholdController,
+                      controller: dataStates.waterVolumeThresholdController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$waterVolumeThreshold',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: waterVolumeThreshold >= 100 ? red : green),
+                        color: dataStates.waterVolumeThreshold >= 100
+                            ? red
+                            : green,
+                      ),
                     ),
                   ),
                 ),
@@ -136,14 +131,14 @@ class WaterTank extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: waterMaxVolumentController,
+                      controller: dataStates.waterMaxVolumentController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$waterMaxVolume',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),

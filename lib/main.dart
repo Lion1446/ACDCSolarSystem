@@ -46,38 +46,7 @@ class SimulationPage extends StatefulWidget {
 }
 
 class _SimulationPageState extends State<SimulationPage> {
-  bool pumpSwitch = true;
-  bool systemSwitch = true;
-  bool reverseOsmosisSwitch = true;
-  double batteryPercentage = 99.50;
-  double batteryPercentageThreshold = 80.0;
-  double batteryIdleDrainRate = 0.01;
-  late double solarPanelVoltage;
-  double solarPanelMaxVoltage = 12;
-  double batteryChargeRate = 2 / 1000;
-  double batteryDrainRate = 5 / 1000;
-
-  double waterVolume = 40;
-  double waterVolumeThreshold = 90;
-  double waterMaxVolume = 100;
-  bool waterTankSwitch = true;
-
-  late double batteryVoltage;
-  double sunBrightness = 100.0;
-  int gearAngle = 0;
-
-  double minSunBrightness = 30.0;
-  double soilMoisture = 70;
-  double soilMoistureThreshold = 50;
-  double soilDryingRate = 5;
-  double soilDryingRateThreshold = 20;
-  double soilMoisteningRate = 20;
-  double soilMoisteningRateThreshold = 10;
-  double waterFlowRate = 0.5;
-  double roBatteryDrainRate = 5.0;
-  bool toWaterTank = true;
-  double potableWaterVolume = 0;
-  double potableWaterMaxVolume = 0;
+  double gearAngle = 0.0;
   double pipe0 = 0;
   double pipe1 = 0;
   double pipe2 = 0;
@@ -92,486 +61,163 @@ class _SimulationPageState extends State<SimulationPage> {
   double pipe11 = 0;
   double pipe12 = 0;
   double pipe13 = 0;
+  double pipe14 = 0;
   double tankWaterFlow = 0;
+  double potableTankWaterFlow = 0;
   double pipeAdder = 10;
+  late DataProviders dataStates;
+  double pipeWidth = 5.0;
 
-  late TextEditingController batteryPercentageController;
-  late TextEditingController batteryVoltageController;
-  late TextEditingController batteryIdleDrainRateController;
-  late TextEditingController sunBrightnessController;
-  late TextEditingController soilMoistureController;
-  late TextEditingController soilMoistureThresholdController;
-  late TextEditingController soilDryingRateController;
-  late TextEditingController soilMoisteningRateController;
-  late TextEditingController solarPanelVoltageController;
-  late TextEditingController batteryChargeRateController;
-  late TextEditingController solarPanelMaxVoltageController;
-  late TextEditingController minSunBrightnessController;
-  late TextEditingController waterFlowRateController;
-  late TextEditingController pumpBatteryDrainRateController;
-  late TextEditingController waterVolumeController;
-  late TextEditingController waterVolumeThresholdController;
-  late TextEditingController waterMaxVolumentController;
-  late TextEditingController roBatteryDrainRateController;
-
-  bool done = false;
+  double sprinkle = -1;
 
   @override
   void initState() {
-    solarPanelVoltage = solarPanelMaxVoltage * (sunBrightness / 100);
-    batteryVoltage = solarPanelVoltage;
-    potableWaterMaxVolume = waterMaxVolume;
-
+    super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-      var dataStates = Provider.of<DataProviders>(context);
-    });
-
-    roBatteryDrainRateController =
-        TextEditingController(text: roBatteryDrainRate.toString());
-    waterMaxVolumentController =
-        TextEditingController(text: waterMaxVolume.toString());
-    waterVolumeThresholdController =
-        TextEditingController(text: waterVolumeThreshold.toString());
-    waterVolumeController = TextEditingController(text: waterVolume.toString());
-    waterFlowRateController =
-        TextEditingController(text: waterFlowRate.toString());
-
-    pumpBatteryDrainRateController =
-        TextEditingController(text: batteryDrainRate.toString());
-
-    batteryPercentageController =
-        TextEditingController(text: batteryPercentage.toString());
-    batteryVoltageController =
-        TextEditingController(text: batteryVoltage.toString());
-    batteryIdleDrainRateController =
-        TextEditingController(text: batteryIdleDrainRate.toString());
-
-    sunBrightnessController =
-        TextEditingController(text: sunBrightness.toString());
-    soilMoistureController =
-        TextEditingController(text: soilMoisture.toString());
-    soilMoistureThresholdController =
-        TextEditingController(text: soilMoistureThreshold.toString());
-    soilDryingRateController =
-        TextEditingController(text: soilDryingRate.toString());
-    soilMoisteningRateController =
-        TextEditingController(text: soilMoisteningRate.toString());
-
-    solarPanelVoltageController =
-        TextEditingController(text: solarPanelVoltage.toString());
-    batteryChargeRateController =
-        TextEditingController(text: batteryChargeRate.toString());
-    solarPanelMaxVoltageController =
-        TextEditingController(text: solarPanelMaxVoltage.toString());
-    minSunBrightnessController =
-        TextEditingController(text: minSunBrightness.toString());
-
-    waterMaxVolumentController.addListener(() {
-      if (waterMaxVolumentController.text.length > 0) {
-        setState(() {
-          waterMaxVolume = double.parse(waterMaxVolumentController.text);
-        });
-      } else {
-        setState(() {
-          waterMaxVolume = 0;
-        });
-      }
-    });
-
-    roBatteryDrainRateController.addListener(() {
-      if (roBatteryDrainRateController.text.length > 0) {
-        if (double.parse(roBatteryDrainRateController.text) > 100) {
-          setState(() {
-            waterVolume = 100;
-            roBatteryDrainRateController.text = waterMaxVolume.toString();
-          });
-        } else {
-          setState(() {
-            waterVolume = double.parse(roBatteryDrainRateController.text);
-          });
-        }
-      } else {
-        setState(() {
-          waterVolume = 0;
-        });
-      }
-    });
-
-    waterVolumeController.addListener(() {
-      if (waterVolumeController.text.length > 0) {
-        if (double.parse(waterVolumeController.text) > waterMaxVolume) {
-          setState(() {
-            waterVolume = waterMaxVolume;
-            waterVolumeController.text = waterMaxVolume.toString();
-          });
-        } else {
-          setState(() {
-            waterVolume = double.parse(waterVolumeController.text);
-          });
-        }
-      } else {
-        setState(() {
-          waterVolume = 0;
-        });
-      }
-    });
-
-    waterVolumeThresholdController.addListener(() {
-      if (waterVolumeThresholdController.text.length > 0) {
-        if (double.parse(waterVolumeThresholdController.text) >
-            waterMaxVolume) {
-          setState(() {
-            waterVolumeThreshold = waterMaxVolume;
-            waterVolumeThresholdController.text = waterMaxVolume.toString();
-          });
-        } else {
-          setState(() {
-            waterVolumeThreshold =
-                double.parse(waterVolumeThresholdController.text);
-          });
-        }
-      } else {
-        setState(() {
-          waterVolumeThreshold = 0;
-        });
-      }
-    });
-
-    pumpBatteryDrainRateController.addListener(() {
-      if (pumpBatteryDrainRateController.text.length > 0) {
-        if (double.parse(pumpBatteryDrainRateController.text) > 100) {
-          setState(() {
-            batteryDrainRate = 100;
-            pumpBatteryDrainRateController.text = "100";
-          });
-        } else {
-          setState(() {
-            batteryDrainRate =
-                double.parse(pumpBatteryDrainRateController.text);
-          });
-        }
-      } else {
-        setState(() {
-          batteryDrainRate = 0;
-        });
-      }
-    });
-
-    waterFlowRateController.addListener(() {
-      if (waterFlowRateController.text.length > 0) {
-        if (double.parse(waterFlowRateController.text) > 100) {
-          setState(() {
-            waterFlowRate = 100;
-            waterFlowRateController.text = "100";
-          });
-        } else {
-          setState(() {
-            waterFlowRate = double.parse(waterFlowRateController.text);
-          });
-        }
-      } else {
-        setState(() {
-          waterFlowRate = 0;
-        });
-      }
-    });
-
-    minSunBrightnessController.addListener(() {
-      if (minSunBrightnessController.text.length > 0) {
-        if (double.parse(minSunBrightnessController.text) > 100) {
-          setState(() {
-            minSunBrightness = 100;
-            minSunBrightnessController.text = "100";
-          });
-        } else {
-          setState(() {
-            minSunBrightness = double.parse(minSunBrightnessController.text);
-          });
-        }
-      } else {
-        setState(() {
-          minSunBrightness = 0;
-        });
-      }
-    });
-
-    solarPanelMaxVoltageController.addListener(() {
-      if (solarPanelMaxVoltageController.text.length > 0) {
-        if (double.parse(solarPanelMaxVoltageController.text) < 0) {
-          setState(() {
-            solarPanelMaxVoltage = 0;
-            solarPanelMaxVoltageController.text = "0";
-          });
-        } else {
-          setState(() {
-            solarPanelMaxVoltage =
-                double.parse(solarPanelMaxVoltageController.text);
-          });
-        }
-      } else {
-        setState(() {
-          solarPanelMaxVoltage = 0;
-        });
-      }
-    });
-
-    solarPanelVoltageController.addListener(() {
-      if (solarPanelVoltageController.text.length > 0) {
-        if (double.parse(solarPanelVoltageController.text) > 100) {
-          setState(() {
-            solarPanelVoltage = solarPanelMaxVoltage;
-            solarPanelVoltageController.text = "100";
-          });
-        } else {
-          setState(() {
-            solarPanelVoltage = double.parse(solarPanelVoltageController.text);
-          });
-        }
-      } else {
-        setState(() {
-          solarPanelVoltage = 0;
-        });
-      }
-    });
-
-    batteryChargeRateController.addListener(() {
-      if (batteryChargeRateController.text.length > 0) {
-        if (double.parse(batteryChargeRateController.text) > 100) {
-          setState(() {
-            batteryChargeRate = 100;
-            batteryChargeRateController.text = "100";
-          });
-        } else {
-          setState(() {
-            batteryChargeRate = double.parse(batteryChargeRateController.text);
-          });
-        }
-      } else {
-        setState(() {
-          batteryChargeRate = 0;
-        });
-      }
-    });
-
-    soilMoistureThresholdController.addListener(() {
-      if (soilMoistureThresholdController.text.length > 0) {
-        if (double.parse(soilMoistureThresholdController.text) > 100) {
-          setState(() {
-            soilMoistureThreshold = 100;
-            soilMoistureThresholdController.text = "100";
-          });
-        } else {
-          setState(() {
-            soilMoistureThreshold =
-                double.parse(soilMoistureThresholdController.text);
-          });
-        }
-      } else {
-        setState(() {
-          soilMoistureThreshold = 0;
-        });
-      }
-    });
-
-    soilMoisteningRateController.addListener(() {
-      if (soilMoisteningRateController.text.length > 0) {
-        if (double.parse(soilMoisteningRateController.text) > 100) {
-          setState(() {
-            soilMoisteningRate = 100;
-            soilMoisteningRateController.text = "100";
-          });
-        } else {
-          setState(() {
-            soilMoisteningRate =
-                double.parse(soilMoisteningRateController.text);
-          });
-        }
-      } else {
-        setState(() {
-          soilMoisteningRate = 0;
-        });
-      }
-    });
-
-    soilDryingRateController.addListener(() {
-      if (soilDryingRateController.text.length > 0) {
-        if (double.parse(soilDryingRateController.text) > 100) {
-          setState(() {
-            soilDryingRate = 100;
-            soilDryingRateController.text = "100";
-          });
-        } else {
-          setState(() {
-            soilDryingRate = double.parse(soilDryingRateController.text);
-          });
-        }
-      } else {
-        setState(() {
-          soilDryingRate = 0;
-        });
-      }
-    });
-
-    soilMoistureController.addListener(() {
-      if (soilMoistureController.text.length > 0) {
-        if (double.parse(soilMoistureController.text) > 100) {
-          setState(() {
-            soilMoisture = 100;
-            soilMoistureController.text = "100";
-          });
-        } else {
-          setState(() {
-            soilMoisture = double.parse(soilMoistureController.text);
-          });
-        }
-      } else {
-        setState(() {
-          soilMoisture = 0;
-        });
-      }
-    });
-
-    sunBrightnessController.addListener(() {
-      if (sunBrightnessController.text.length > 0) {
-        if (double.parse(sunBrightnessController.text) > 100) {
-          setState(() {
-            sunBrightness = 100;
-            solarPanelVoltage = solarPanelMaxVoltage * (sunBrightness / 100);
-            solarPanelVoltageController.text =
-                solarPanelVoltage.toStringAsFixed(2);
-            sunBrightnessController.text = "100";
-          });
-        } else {
-          setState(() {
-            sunBrightness =
-                double.parse(sunBrightnessController.text) + minSunBrightness;
-            if (sunBrightness > 100) {
-              sunBrightness = 100;
-            }
-            solarPanelVoltage = solarPanelMaxVoltage * (sunBrightness / 100);
-            solarPanelVoltageController.text =
-                solarPanelVoltage.toStringAsFixed(2);
-          });
-        }
-      } else {
-        setState(() {
-          sunBrightness = 0;
-          solarPanelVoltage = solarPanelMaxVoltage * (sunBrightness / 100);
-          solarPanelVoltageController.text =
-              solarPanelVoltage.toStringAsFixed(2);
-        });
-      }
-    });
-
-    batteryPercentageController.addListener(() {
-      if (batteryPercentageController.text.length > 0) {
-        if (double.parse(batteryPercentageController.text) > 100) {
-          setState(() {
-            batteryPercentage = 100;
-            batteryPercentageController.text = "100";
-          });
-        } else {
-          setState(() {
-            batteryPercentage = double.parse(batteryPercentageController.text);
-          });
-        }
-      } else {
-        setState(() {
-          batteryPercentage = 0;
-        });
-      }
-    });
-
-    batteryVoltageController.addListener(() {
-      if (batteryVoltageController.text.length > 0) {
-        if (double.parse(batteryVoltageController.text) > solarPanelVoltage) {
-          setState(() {
-            batteryVoltage = solarPanelVoltage;
-            batteryVoltageController.text = "$solarPanelVoltage";
-          });
-        } else {
-          setState(() {
-            batteryVoltage = double.parse(batteryVoltageController.text);
-          });
-        }
-      } else {
-        setState(() {
-          batteryVoltage = 0;
-        });
-      }
-    });
-
-    batteryIdleDrainRateController.addListener(() {
-      if (batteryIdleDrainRateController.text.length > 0) {
-        if (double.parse(batteryIdleDrainRateController.text) > 100) {
-          setState(() {
-            batteryIdleDrainRate = 100;
-            batteryIdleDrainRateController.text = "100";
-          });
-        } else {
-          setState(() {
-            batteryIdleDrainRate =
-                double.parse(batteryIdleDrainRateController.text);
-          });
-        }
-      } else {
-        setState(() {
-          batteryIdleDrainRate = 0;
-        });
-      }
+      dataStates = Provider.of<DataProviders>(context, listen: false);
+      dataStates.setup();
     });
     Timer.periodic(Duration(milliseconds: 1), (timer) {
-      if (waterVolume < waterVolumeThreshold) waterTankSwitch = true;
-      if (100 * (waterVolume / waterMaxVolume) >= 20) {
-        if (pipe8 < 87) {
-          pipeAdder = (pipeAdder).abs();
-          pipe8 += pipeAdder;
-          if (pipe8 > 87) pipe8 = 87;
-        }
-      } else {
-        if (pipe8 > 0) {
-          pipeAdder = -((pipeAdder).abs());
-          pipe8 += pipeAdder;
-          if (pipe8 < 0) pipe8 = 0;
+      if (dataStates.soilMoisture > 0) {
+        dataStates.soilMoisture -= (dataStates.soilDryingRate / 100);
+        dataStates.soilMoistureController.text =
+            dataStates.soilMoisture.toStringAsFixed(2);
+      }
+      if (dataStates.potableWaterVolume / dataStates.maxPotableWaterVolume >=
+          0.2) {
+        if (dataStates.toHousehold) {
+          if (pipe13 < 5) {
+            pipe13 += pipeAdder;
+            if (pipe13 > 5) pipe13 = 5;
+          } else {
+            if (pipe14 < 172) {
+              pipe14 += pipeAdder;
+              if (pipe14 > 172) pipe14 = 172;
+            } else {
+              dataStates.potableWaterVolume -=
+                  (dataStates.waterFlowRate / 1000);
+            }
+          }
+        } else {
+          if (pipe14 > 0) {
+            pipe14 -= pipeAdder;
+            if (pipe14 < 0) pipe14 = 0;
+          } else {
+            if (pipe13 > 0) {
+              pipe13 -= pipeAdder;
+              if (pipe13 < 0) pipe13 = 0;
+            }
+          }
         }
       }
-
-      if ((pumpSwitch && systemSwitch) &&
-          (batteryPercentage >= batteryPercentageThreshold ||
-              solarPanelVoltage >= solarPanelMaxVoltage)) {
-        setState(() {
-          gearAngle += 2;
-          pipeAdder = (pipeAdder).abs();
-          if (pipe0 < 122) {
-            pipe0 += pipeAdder;
-            if (pipe0 > 122) pipe0 = 122;
-            if (pipe0 < 0) {
-              pipe0 = 0;
-            }
+      if (dataStates.waterVolume < dataStates.waterVolumeThreshold) {
+        dataStates.waterTankSwitch = true;
+      }
+      if (dataStates.waterVolume >= dataStates.waterVolumeThreshold) {
+        dataStates.waterTankSwitch = false;
+      }
+      if (tankWaterFlow >= 110) {
+        dataStates.waterVolume += (dataStates.waterFlowRate / 1000);
+        dataStates.waterVolumeController.text =
+            dataStates.waterVolume.toStringAsFixed(2);
+      }
+      if (potableTankWaterFlow >= 110) {
+        if (dataStates.potableWaterVolume < dataStates.maxPotableWaterVolume) {
+          dataStates.waterVolume -= (dataStates.waterFlowRate / 1000);
+          dataStates.potableWaterVolume += dataStates.waterFlowRate / 1000;
+        }
+      }
+      if (dataStates.waterVolume / dataStates.maxWaterVolume > 0.2 &&
+          dataStates.potableWaterVolume < dataStates.maxPotableWaterVolume &&
+          dataStates.roSwitch &&
+          dataStates.systemSwitch) {
+        if (pipe8 < 86.5) {
+          pipe8 += pipeAdder;
+          if (pipe8 > 86.5) pipe8 = 86.5;
+        } else {
+          if (pipe9 < 15) {
+            pipe9 += pipeAdder;
+            if (pipe9 > 15) pipe9 = 15;
           } else {
-            if (waterTankSwitch) {
-              if (toWaterTank) {
-                pipeAdder = -((pipeAdder).abs());
-                if (pipe7 > 0) {
-                  pipe7 += pipeAdder;
-                  if (pipe7 <= 0) pipe7 = 0;
+            if (pipe10 < 113) {
+              pipe10 += pipeAdder;
+              if (pipe10 > 113) pipe10 = 113;
+            } else {
+              if (pipe11 < 57) {
+                pipe11 += pipeAdder;
+                if (pipe11 > 57) pipe11 = 57;
+              } else {
+                if (pipe12 < 6) {
+                  pipe12 += pipeAdder;
+                  if (pipe12 > 6) pipe12 = 12;
                 } else {
-                  pipe7 = 0;
-                  if (pipe6 > 0) {
-                    pipe6 += pipeAdder;
-                    if (pipe6 < 0) pipe6 = 0;
+                  if (potableTankWaterFlow < 110) {
+                    potableTankWaterFlow += pipeAdder;
+                    if (potableTankWaterFlow > 110) potableTankWaterFlow = 110;
+                  } else {}
+                }
+              }
+            }
+          }
+        }
+      } else {
+        if (potableTankWaterFlow != 0) {
+          potableTankWaterFlow = 0;
+        } else {
+          if (pipe12 > 0) {
+            pipe12 -= pipeAdder;
+            if (pipe12 < 0) pipe12 = 0;
+          } else {
+            if (pipe11 > 0) {
+              pipe11 -= pipeAdder;
+              if (pipe11 < 0) pipe11 = 0;
+            } else {
+              if (pipe10 > 0) {
+                pipe10 -= pipeAdder;
+                if (pipe10 < 0) pipe10 = 0;
+              } else {
+                if (pipe9 > 0) {
+                  pipe9 -= pipeAdder;
+                  if (pipe9 < 0) pipe9 = 0;
+                } else {
+                  if (pipe8 > 0) {
+                    pipe8 -= pipeAdder;
+                    if (pipe8 < 0) pipe8 = 0;
                   }
                 }
-
-                pipeAdder = (pipeAdder).abs();
-
-                if (pipe1 < 168) {
+              }
+            }
+          }
+        }
+      }
+      if (dataStates.batteryPercentage >
+              dataStates.batteryPercentageThreshold ||
+          dataStates.solarPanelVoltage > dataStates.solarPanelMaxVoltage - 3) {
+        if (dataStates.systemSwitch && dataStates.pumpSwitch) {
+          if (dataStates.toWaterTank) {
+            sprinkle = -1;
+            if (pipe7 > 0) {
+              pipe7 -= pipeAdder;
+              if (pipe7 < 0) pipe7 = 0;
+            } else {
+              if (pipe6 > 0) {
+                pipe6 -= pipeAdder;
+                if (pipe6 < 0) pipe6 = 0;
+              }
+            }
+            if (dataStates.waterTankSwitch) {
+              gearAngle += 2;
+              if (pipe0 < 122) {
+                pipe0 += pipeAdder;
+                if (pipe0 > 122) pipe0 = 122;
+              } else {
+                if (pipe1 < 167) {
                   pipe1 += pipeAdder;
-                  if (pipe1 > 168) pipe1 = 168;
+                  if (pipe1 > 167) pipe1 = 167;
                 } else {
-                  if (pipe2 < 155.8) {
+                  if (pipe2 < 154) {
                     pipe2 += pipeAdder;
-                    if (pipe2 > 155.8) pipe2 = 155.8;
+                    if (pipe2 > 154) pipe2 = 154;
                   } else {
                     if (pipe3 < 135) {
                       pipe3 += pipeAdder;
@@ -587,115 +233,98 @@ class _SimulationPageState extends State<SimulationPage> {
                         } else {
                           if (tankWaterFlow < 110) {
                             tankWaterFlow += pipeAdder;
-                            if (tankWaterFlow > 200) tankWaterFlow = 200;
-                          } else {
-                            waterVolume += (waterFlowRate / 100);
-                            waterVolumeController.text =
-                                waterVolume.toStringAsFixed(2);
-                            if (waterVolume >= waterVolumeThreshold)
-                              waterTankSwitch = false;
+                            if (tankWaterFlow > 110) tankWaterFlow = 110;
                           }
                         }
                       }
                     }
                   }
                 }
-              } else {
+              }
+            } else {
+              if (tankWaterFlow != 0) {
                 tankWaterFlow = 0;
-                pipeAdder = -((pipeAdder).abs());
-
+              } else {
                 if (pipe5 > 0) {
-                  pipe5 += pipeAdder;
-                  if (pipe5 < 0) {
-                    pipe5 = 0;
-                  }
+                  pipe5 -= pipeAdder;
+                  if (pipe5 < 0) pipe5 = 0;
                 } else {
                   if (pipe4 > 0) {
-                    pipe4 += pipeAdder;
-                    if (pipe4 < 0) {
-                      pipe4 = 0;
-                    }
+                    pipe4 -= pipeAdder;
+                    if (pipe4 < 0) pipe4 = 0;
                   } else {
                     if (pipe3 > 0) {
-                      pipe3 += pipeAdder;
-                      if (pipe3 < 0) {
-                        pipe3 = 0;
-                      }
+                      pipe3 -= pipeAdder;
+                      if (pipe3 < 0) pipe3 = 0;
                     } else {
                       if (pipe2 > 0) {
-                        pipe2 += pipeAdder;
-                        if (pipe2 < 0) {
-                          pipe2 = 0;
-                        }
+                        pipe2 -= pipeAdder;
+                        if (pipe2 < 0) pipe2 = 0;
                       } else {
                         if (pipe1 > 0) {
-                          pipe1 += pipeAdder;
+                          pipe1 -= pipeAdder;
                           if (pipe1 < 0) {
                             pipe1 = 0;
                           }
-                        } else {
-                          if (pipe0 > 0) {
-                            pipe0 += pipeAdder;
-                            if (pipe0 < 0) {
-                              pipe0 = 0;
-                            }
-                          }
                         }
                       }
                     }
                   }
                 }
-                pipeAdder = (pipeAdder).abs();
-                if (pipe6 < 932) {
-                  pipe6 += pipeAdder;
-                  if (pipe6 > 932) pipe6 = 932;
+              }
+            }
+          } else {
+            gearAngle += 1;
+            if (pipe0 < 122) {
+              pipe0 += pipeAdder;
+              if (pipe0 > 122) pipe0 = 122;
+            } else {
+              if (pipe6 < 932) {
+                pipe6 += pipeAdder;
+                if (pipe6 > 932) pipe6 = 932;
+              } else {
+                if (pipe7 < 10) {
+                  pipe7 += pipeAdder;
+                  if (pipe7 > 10) pipe7 = 10;
                 } else {
-                  if (pipe7 < 10) {
-                    pipe7 += pipeAdder;
-                    if (pipe7 > 10) pipe7 = 10;
+                  sprinkle += 0.1;
+                  if (sprinkle > 11) sprinkle = 0;
+                  if (dataStates.soilMoisture < 100) {
+                    dataStates.soilMoisture +=
+                        (dataStates.soilMoisteningRate / 100);
+                    dataStates.soilMoistureController.text =
+                        dataStates.soilMoisture.toStringAsFixed(2);
+                    if (dataStates.soilMoisture > 100)
+                      dataStates.soilMoisture = 100;
                   }
                 }
               }
-            } else {
-              tankWaterFlow = 0;
-              pipeAdder = -((pipeAdder).abs());
+            }
 
+            if (tankWaterFlow != 0) {
+              tankWaterFlow = 0;
+            } else {
               if (pipe5 > 0) {
-                pipe5 += pipeAdder;
-                if (pipe5 < 0) {
-                  pipe5 = 0;
-                }
+                pipe5 -= pipeAdder;
+                if (pipe5 < 0) pipe5 = 0;
               } else {
                 if (pipe4 > 0) {
-                  pipe4 += pipeAdder;
-                  if (pipe4 < 0) {
-                    pipe4 = 0;
-                  }
+                  pipe4 -= pipeAdder;
+                  if (pipe4 < 0) pipe4 = 0;
                 } else {
                   if (pipe3 > 0) {
-                    pipe3 += pipeAdder;
-                    if (pipe3 < 0) {
-                      pipe3 = 0;
-                    }
+                    pipe3 -= pipeAdder;
+                    if (pipe3 < 0) pipe3 = 0;
                   } else {
                     if (pipe2 > 0) {
-                      pipe2 += pipeAdder;
-                      if (pipe2 < 0) {
-                        pipe2 = 0;
-                      }
+                      pipe2 -= pipeAdder;
+                      if (pipe2 < 0) pipe2 = 0;
                     } else {
                       if (pipe1 > 0) {
-                        pipe1 += pipeAdder;
+                        pipe1 -= pipeAdder;
                         if (pipe1 < 0) {
                           pipe1 = 0;
                         }
-                      } else {
-                        if (pipe0 > 0) {
-                          pipe0 += pipeAdder;
-                          if (pipe0 < 0) {
-                            pipe0 = 0;
-                          }
-                        }
                       }
                     }
                   }
@@ -703,57 +332,81 @@ class _SimulationPageState extends State<SimulationPage> {
               }
             }
           }
-        });
-      } else {
-        tankWaterFlow = 0;
-        pipeAdder = -((pipeAdder).abs());
-        if (pipe7 > 0) {
-          pipe7 += pipeAdder;
-          if (pipe7 < 0) {
-            pipe7 = 0;
-          }
         } else {
-          if (pipe6 > 0) {
-            pipe6 += pipeAdder;
-            if (pipe6 < 0) {
-              pipe6 = 0;
+          if (pipe7 > 0) {
+            pipe7 -= pipeAdder;
+            if (pipe7 < 0) pipe7 = 0;
+          } else {
+            if (pipe6 > 0) {
+              pipe6 -= pipeAdder;
+              if (pipe6 < 0) pipe6 = 0;
+            }
+          }
+          if (tankWaterFlow != 0) {
+            tankWaterFlow = 0;
+          } else {
+            if (pipe5 > 0) {
+              pipe5 -= pipeAdder;
+              if (pipe5 < 0) pipe5 = 0;
+            } else {
+              if (pipe4 > 0) {
+                pipe4 -= pipeAdder;
+                if (pipe4 < 0) pipe4 = 0;
+              } else {
+                if (pipe3 > 0) {
+                  pipe3 -= pipeAdder;
+                  if (pipe3 < 0) pipe3 = 0;
+                } else {
+                  if (pipe2 > 0) {
+                    pipe2 -= pipeAdder;
+                    if (pipe2 < 0) pipe2 = 0;
+                  } else {
+                    if (pipe1 > 0) {
+                      pipe1 -= pipeAdder;
+                      if (pipe1 < 0) {
+                        pipe1 = 0;
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
-        if (pipe5 > 0) {
-          pipe5 += pipeAdder;
-          if (pipe5 < 0) {
-            pipe5 = 0;
-          }
+      } else {
+        dataStates.systemSwitch = false;
+        if (pipe7 > 0) {
+          pipe7 -= pipeAdder;
+          if (pipe7 < 0) pipe7 = 0;
         } else {
-          if (pipe4 > 0) {
-            pipe4 += pipeAdder;
-            if (pipe4 < 0) {
-              pipe4 = 0;
-            }
+          if (pipe6 > 0) {
+            pipe6 -= pipeAdder;
+            if (pipe6 < 0) pipe6 = 0;
+          }
+        }
+        if (tankWaterFlow != 0) {
+          tankWaterFlow = 0;
+        } else {
+          if (pipe5 > 0) {
+            pipe5 -= pipeAdder;
+            if (pipe5 < 0) pipe5 = 0;
           } else {
-            if (pipe3 > 0) {
-              pipe3 += pipeAdder;
-              if (pipe3 < 0) {
-                pipe3 = 0;
-              }
+            if (pipe4 > 0) {
+              pipe4 -= pipeAdder;
+              if (pipe4 < 0) pipe4 = 0;
             } else {
-              if (pipe2 > 0) {
-                pipe2 += pipeAdder;
-                if (pipe2 < 0) {
-                  pipe2 = 0;
-                }
+              if (pipe3 > 0) {
+                pipe3 -= pipeAdder;
+                if (pipe3 < 0) pipe3 = 0;
               } else {
-                if (pipe1 > 0) {
-                  pipe1 += pipeAdder;
-                  if (pipe1 < 0) {
-                    pipe1 = 0;
-                  }
+                if (pipe2 > 0) {
+                  pipe2 -= pipeAdder;
+                  if (pipe2 < 0) pipe2 = 0;
                 } else {
-                  if (pipe0 > 0 && pipe6 == 0) {
-                    pipe0 += pipeAdder;
-                    if (pipe0 < 0) {
-                      pipe0 = 0;
+                  if (pipe1 > 0) {
+                    pipe1 -= pipeAdder;
+                    if (pipe1 < 0) {
+                      pipe1 = 0;
                     }
                   }
                 }
@@ -762,36 +415,27 @@ class _SimulationPageState extends State<SimulationPage> {
           }
         }
       }
+      if (pipe1 == 0 &&
+          pipe6 == 0 &&
+          dataStates.toWaterTank &&
+          dataStates.waterVolume >= dataStates.waterVolumeThreshold) {
+        if (pipe0 > 0) {
+          pipe0 -= pipeAdder;
+          if (pipe0 < 0) pipe0 = 0;
+        }
+      }
       setState(() {});
     });
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     double maxHeight = MediaQuery.of(context).size.height;
     var _blankFocus = FocusNode();
-    // double maxWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         FocusScope.of(context).requestFocus(_blankFocus);
-        sunBrightnessController.text =
-            double.parse(sunBrightnessController.text).toString();
-        batteryPercentageController.text =
-            double.parse(batteryPercentageController.text).toString();
-        batteryVoltageController.text =
-            double.parse(batteryVoltageController.text).toString();
-        batteryIdleDrainRateController.text =
-            double.parse(batteryIdleDrainRateController.text).toString();
-        sunBrightnessController.text =
-            double.parse(sunBrightnessController.text).toString();
-        soilMoistureController.text =
-            double.parse(soilMoistureController.text).toString();
-        soilDryingRateController.text =
-            double.parse(soilDryingRateController.text).toString();
-        soilMoisteningRateController.text =
-            double.parse(soilMoisteningRateController.text).toString();
       },
       child: Scaffold(
         drawer: Container(
@@ -818,83 +462,31 @@ class _SimulationPageState extends State<SimulationPage> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: EnvironmentVariables(
-                        sunBrightnessController: sunBrightnessController,
-                        soilMoistureController: soilMoistureController,
-                        soilDryingRateController: soilDryingRateController,
-                        soilMoisteningRateController:
-                            soilMoisteningRateController,
-                        sunBrightness: sunBrightness,
-                        minSunBrightness: minSunBrightness,
-                        soilMoisture: soilMoisture,
-                        soilMoistureThreshold: soilMoistureThreshold,
-                        soilDryingRate: soilDryingRate,
-                        soilDryingRateThreshold: soilDryingRateThreshold,
-                        soilMoisteningRate: soilMoisteningRate,
-                        soilMoisteningRateThreshold:
-                            soilMoisteningRateThreshold,
-                      ),
+                      child: EnvironmentVariables(),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: MainControlUnit(systemSwitch: systemSwitch),
+                      child: MainControlUnit(),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: ReverseOsmosisUnit(
-                        reverseOsmosisSwitch: reverseOsmosisSwitch,
-                        roBatteryDrainRate: roBatteryDrainRate,
-                        roBatteryDrainRateController:
-                            roBatteryDrainRateController,
-                      ),
+                      child: ReverseOsmosisUnit(),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: SoilMoistureSensor(
-                          soilMoistureController: soilMoistureController,
-                          soilMoisture: soilMoisture,
-                          soilMoistureThreshold: soilMoistureThreshold,
-                          soilMoistureThresholdController:
-                              soilMoistureThresholdController),
+                      child: SoilMoistureSensor(),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: SolarPanel(
-                        solarPanelVoltageController:
-                            solarPanelVoltageController,
-                        batteryChargeRateController:
-                            batteryChargeRateController,
-                        solarPanelMaxVoltageController:
-                            solarPanelMaxVoltageController,
-                        minSunBrightnessController: minSunBrightnessController,
-                        solarPanelVoltage: solarPanelVoltage,
-                        solarPanelMaxVoltage: solarPanelMaxVoltage,
-                        minSunBrightness: minSunBrightness,
-                        batteryChargeRate: batteryChargeRate,
-                      ),
+                      child: SolarPanel(),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: WaterPump(
-                          waterFlowRateController: waterFlowRateController,
-                          batteryDrainRateController:
-                              pumpBatteryDrainRateController,
-                          pumpSwitch: pumpSwitch,
-                          toWaterTank: toWaterTank,
-                          batteryDrainRate: batteryDrainRate,
-                          waterFlowRate: waterFlowRate),
+                      child: WaterPump(),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: WaterTank(
-                          waterVolumeController: waterVolumeController,
-                          waterVolumeThresholdController:
-                              waterVolumeThresholdController,
-                          waterMaxVolumentController:
-                              waterMaxVolumentController,
-                          waterVolume: waterVolume,
-                          waterVolumeThreshold: waterVolumeThreshold,
-                          waterMaxVolume: waterMaxVolume),
+                      child: WaterTank(),
                     ),
                   ],
                 ),
@@ -957,8 +549,8 @@ class _SimulationPageState extends State<SimulationPage> {
                               child: Container(
                                 width: 1200,
                                 height: 60,
-                                color: Color(0XFFC86000)
-                                    .withOpacity(soilMoisture / 100.0),
+                                color: Color(0XFFC86000).withOpacity(
+                                    dataStates.soilMoisture / 100.0),
                               ),
                             ),
                             Positioned(
@@ -975,8 +567,8 @@ class _SimulationPageState extends State<SimulationPage> {
                                 child: Container(
                                   width: 1200,
                                   height: 100,
-                                  color: Colors.yellow
-                                      .withOpacity(sunBrightness / 100.0),
+                                  color: Colors.yellow.withOpacity(
+                                      dataStates.sunBrightness / 100.0),
                                 ),
                               ),
                             ),
@@ -988,16 +580,16 @@ class _SimulationPageState extends State<SimulationPage> {
                               bottom: 94,
                               left: 91,
                               child: AnimatedContainer(
-                                duration: Duration(milliseconds: 10),
+                                duration: Duration(milliseconds: 1),
                                 curve: Curves.linear,
-                                width: 5.8,
+                                width: pipeWidth,
                                 height: pipe0,
                                 color: Color(0XFF375E7D),
                               ),
                             ),
                             Positioned(
                               bottom: 216,
-                              left: 91,
+                              left: 91.5,
                               child: AnimatedContainer(
                                 decoration: BoxDecoration(
                                   color: Color(0XFF375E7D),
@@ -1005,15 +597,15 @@ class _SimulationPageState extends State<SimulationPage> {
                                     topLeft: Radius.circular(2),
                                   ),
                                 ),
-                                duration: Duration(milliseconds: 10),
+                                duration: Duration(milliseconds: 1),
                                 curve: Curves.linear,
-                                width: 5.8,
+                                width: pipeWidth,
                                 height: pipe1,
                               ),
                             ),
                             Positioned(
-                              bottom: 378.2,
-                              left: 91,
+                              bottom: 378.5,
+                              left: 92,
                               child: AnimatedContainer(
                                 decoration: BoxDecoration(
                                   color: Color(0XFF375E7D),
@@ -1022,10 +614,10 @@ class _SimulationPageState extends State<SimulationPage> {
                                     bottomRight: Radius.circular(2),
                                   ),
                                 ),
-                                duration: Duration(milliseconds: 10),
+                                duration: Duration(milliseconds: 1),
                                 curve: Curves.linear,
                                 width: pipe2,
-                                height: 5.8,
+                                height: pipeWidth,
                               ),
                             ),
                             Positioned(
@@ -1039,15 +631,15 @@ class _SimulationPageState extends State<SimulationPage> {
                                     bottomRight: Radius.circular(2),
                                   ),
                                 ),
-                                duration: Duration(milliseconds: 10),
+                                duration: Duration(milliseconds: 1),
                                 curve: Curves.linear,
-                                width: 5.8,
+                                width: pipeWidth,
                                 height: pipe3,
                               ),
                             ),
                             Positioned(
-                              bottom: 507.4,
-                              left: 241,
+                              bottom: 508,
+                              left: 242,
                               child: AnimatedContainer(
                                 decoration: BoxDecoration(
                                   color: Color(0XFF375E7D),
@@ -1056,15 +648,15 @@ class _SimulationPageState extends State<SimulationPage> {
                                     topRight: Radius.circular(2),
                                   ),
                                 ),
-                                duration: Duration(milliseconds: 10),
+                                duration: Duration(milliseconds: 1),
                                 curve: Curves.linear,
                                 width: pipe4,
-                                height: 5.8,
+                                height: pipeWidth,
                               ),
                             ),
                             Positioned(
                               bottom: 504,
-                              left: 293.2,
+                              left: 294,
                               child: AnimatedOpacity(
                                 duration: Duration(milliseconds: 100),
                                 opacity: pipe5 != 0 ? 1.0 : 0.0,
@@ -1076,7 +668,7 @@ class _SimulationPageState extends State<SimulationPage> {
                                       topRight: Radius.circular(2),
                                     ),
                                   ),
-                                  width: 5.8,
+                                  width: pipeWidth,
                                   height: 6,
                                 ),
                               ),
@@ -1088,185 +680,14 @@ class _SimulationPageState extends State<SimulationPage> {
                                 alignment: FractionalOffset.bottomCenter,
                                 angle: -math.pi,
                                 child: AnimatedContainer(
-                                  duration: Duration(milliseconds: 100),
+                                  duration: Duration(milliseconds: 1),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Color(0XFF375E7D),
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(2),
-                                        topRight: Radius.circular(2),
-                                      ),
                                     ),
-                                    width: 5.8,
+                                    width: pipeWidth,
                                     height: tankWaterFlow,
                                   ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 380,
-                              left: 250,
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0XFF375E7D),
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
-                                    ),
-                                  ),
-                                  width: 95,
-                                  height: 100 * (waterVolume / waterMaxVolume),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 394,
-                              left: 354,
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0XFF375E7D),
-                                  ),
-                                  width: pipe8,
-                                  height: 5.0,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 336,
-                              left: 523,
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0XFF58B5D2),
-                                    borderRadius: BorderRadius.only(
-                                      // bottomLeft: Radius.circular(10),
-                                      bottomRight: Radius.circular(2),
-                                    ),
-                                  ),
-                                  width: 15,
-                                  height: 5.0,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 336,
-                              left: 533,
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0XFF58B5D2),
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(2),
-                                      bottomRight: Radius.circular(2),
-                                    ),
-                                  ),
-                                  width: 5.0,
-                                  height: 113,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 445,
-                              left: 533,
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0XFF58B5D2),
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(2),
-                                      topLeft: Radius.circular(2),
-                                    ),
-                                  ),
-                                  width: 57,
-                                  height: 5,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 448,
-                              left: 585,
-                              child: Transform.rotate(
-                                alignment: FractionalOffset.bottomCenter,
-                                angle: -math.pi,
-                                child: AnimatedContainer(
-                                  duration: Duration(milliseconds: 100),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Color(0XFF58B5D2),
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(2),
-                                        topRight: Radius.circular(2),
-                                      ),
-                                    ),
-                                    width: 5.8,
-                                    height: 6,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 332,
-                              left: 645,
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0XFF58B5D2),
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(2),
-                                      topLeft: Radius.circular(2),
-                                    ),
-                                  ),
-                                  width: 5,
-                                  height: 5,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 338,
-                              left: 673,
-                              child: Transform.rotate(
-                                alignment: FractionalOffset.bottomCenter,
-                                angle: -math.pi,
-                                child: AnimatedContainer(
-                                  duration: Duration(milliseconds: 100),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Color(0XFF58B5D2),
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(2),
-                                      ),
-                                    ),
-                                    width: 5.8,
-                                    height: 172,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 318,
-                              left: 541,
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0XFF58B5D2),
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
-                                    ),
-                                  ),
-                                  width: 95,
-                                  height: 100 *
-                                      (potableWaterVolume /
-                                          potableWaterMaxVolume),
                                 ),
                               ),
                             ),
@@ -1282,14 +703,14 @@ class _SimulationPageState extends State<SimulationPage> {
                                   ),
                                 ),
                                 width: pipe6,
-                                height: 5.8,
+                                height: pipeWidth,
                               ),
                             ),
                             Positioned(
                               bottom: 130,
                               left: 1030,
                               child: AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
+                                duration: Duration(milliseconds: 1),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: Color(0XFF375E7D),
@@ -1297,8 +718,211 @@ class _SimulationPageState extends State<SimulationPage> {
                                       bottomRight: Radius.circular(2),
                                     ),
                                   ),
-                                  width: 5.8,
+                                  width: pipeWidth,
                                   height: pipe7,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 380,
+                              left: 250,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 1),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0XFF375E7D),
+                                    borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(10),
+                                    ),
+                                  ),
+                                  width: 95,
+                                  height: 110 *
+                                      (dataStates.waterVolume /
+                                          dataStates.maxWaterVolume),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 394,
+                              left: 354.5,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 1),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0XFF375E7D),
+                                  ),
+                                  width: pipe8,
+                                  height: pipeWidth,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 336,
+                              left: 523,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 1),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0XFF58B5D2),
+                                    borderRadius: BorderRadius.only(
+                                      // bottomLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(2),
+                                    ),
+                                  ),
+                                  width: pipe9,
+                                  height: pipeWidth,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 336,
+                              left: 533,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 1),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0XFF58B5D2),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(2),
+                                      bottomRight: Radius.circular(2),
+                                    ),
+                                  ),
+                                  width: pipeWidth,
+                                  height: pipe10,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 445,
+                              left: 533,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 1),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0XFF58B5D2),
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(2),
+                                      topLeft: Radius.circular(2),
+                                    ),
+                                  ),
+                                  width: pipe11,
+                                  height: pipeWidth,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 448,
+                              left: 585,
+                              child: Transform.rotate(
+                                alignment: FractionalOffset.bottomCenter,
+                                angle: -math.pi,
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 1),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0XFF58B5D2),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(2),
+                                        topRight: Radius.circular(2),
+                                      ),
+                                    ),
+                                    width: pipeWidth,
+                                    height: pipe12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 428,
+                              left: 585,
+                              child: Transform.rotate(
+                                alignment: FractionalOffset.bottomCenter,
+                                angle: -math.pi,
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 1),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0XFF58B5D2),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(2),
+                                        topRight: Radius.circular(2),
+                                      ),
+                                    ),
+                                    width: pipeWidth,
+                                    height: potableTankWaterFlow,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 332,
+                              left: 645,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 1),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0XFF58B5D2),
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(2),
+                                      topLeft: Radius.circular(2),
+                                    ),
+                                  ),
+                                  width: pipe13,
+                                  height: pipeWidth,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 338,
+                              left: 673,
+                              child: Transform.rotate(
+                                alignment: FractionalOffset.bottomCenter,
+                                angle: -math.pi,
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 1),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0XFF58B5D2),
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(2),
+                                      ),
+                                    ),
+                                    width: pipeWidth,
+                                    height: pipe14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 318,
+                              left: 541,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 1),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0XFF58B5D2),
+                                    borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(10),
+                                      topLeft: (dataStates.potableWaterVolume /
+                                                  dataStates
+                                                      .maxPotableWaterVolume >=
+                                              0.97)
+                                          ? Radius.circular(10)
+                                          : Radius.circular(0),
+                                      topRight: (dataStates.potableWaterVolume /
+                                                  dataStates
+                                                      .maxPotableWaterVolume >=
+                                              0.97)
+                                          ? Radius.circular(10)
+                                          : Radius.circular(0),
+                                    ),
+                                  ),
+                                  width: 95,
+                                  height: 110 *
+                                      (dataStates.potableWaterVolume /
+                                          dataStates.maxPotableWaterVolume),
                                 ),
                               ),
                             ),
@@ -1317,21 +941,31 @@ class _SimulationPageState extends State<SimulationPage> {
                               child: Container(
                                 width: 1200,
                                 height: 700,
-                                color: Colors.black.withOpacity(
-                                    (0.4 - (sunBrightness / 100.0) < 0)
-                                        ? 0
-                                        : 0.4 - (sunBrightness / 100.0)),
+                                color: Colors.black.withOpacity((0.4 -
+                                            (dataStates.sunBrightness / 100.0) <
+                                        0)
+                                    ? 0
+                                    : 0.4 - (dataStates.sunBrightness / 100.0)),
                               ),
                             ),
                             Positioned(
                               bottom: 330,
                               left: 656,
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: grayButton,
-                                  borderRadius: BorderRadius.circular(15),
+                              child: InkWell(
+                                onTap: () {
+                                  dataStates
+                                      .setToHousehold(!dataStates.toHousehold);
+                                },
+                                child: Opacity(
+                                  opacity: dataStates.toHousehold ? 0.0 : 1.0,
+                                  child: Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: grayButton,
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -1339,12 +973,12 @@ class _SimulationPageState extends State<SimulationPage> {
                               bottom: 122,
                               left: 81,
                               child: Transform.rotate(
-                                angle: toWaterTank ? -math.pi / 2 : 0,
+                                angle:
+                                    dataStates.toWaterTank ? -math.pi / 2 : 0,
                                 child: InkWell(
                                   onTap: () {
-                                    setState(() {
-                                      toWaterTank = !toWaterTank;
-                                    });
+                                    dataStates.setToWaterTank(
+                                        !dataStates.toWaterTank);
                                   },
                                   child: Icon(
                                     Icons.arrow_forward,
@@ -1364,15 +998,15 @@ class _SimulationPageState extends State<SimulationPage> {
                                   children: [
                                     InkWell(
                                       onTap: () {
-                                        setState(() {
-                                          pumpSwitch = !pumpSwitch;
-                                        });
+                                        dataStates.setPumpSwitch(
+                                            !dataStates.pumpSwitch);
                                       },
                                       child: Container(
                                         width: 15,
                                         height: 15,
                                         decoration: BoxDecoration(
-                                          color: pumpSwitch && systemSwitch
+                                          color: dataStates.pumpSwitch &&
+                                                  dataStates.systemSwitch
                                               ? Colors.red[700]
                                               : grayButton,
                                           borderRadius:
@@ -1382,15 +1016,14 @@ class _SimulationPageState extends State<SimulationPage> {
                                     ),
                                     InkWell(
                                       onTap: () {
-                                        setState(() {
-                                          systemSwitch = !systemSwitch;
-                                        });
+                                        dataStates.setSystemSwitch(
+                                            !dataStates.systemSwitch);
                                       },
                                       child: Container(
                                         width: 15,
                                         height: 15,
                                         decoration: BoxDecoration(
-                                          color: systemSwitch
+                                          color: dataStates.systemSwitch
                                               ? Colors.red[700]
                                               : grayButton,
                                           borderRadius:
@@ -1400,17 +1033,15 @@ class _SimulationPageState extends State<SimulationPage> {
                                     ),
                                     InkWell(
                                       onTap: () {
-                                        setState(() {
-                                          reverseOsmosisSwitch =
-                                              !reverseOsmosisSwitch;
-                                        });
+                                        dataStates
+                                            .setROSwitch(!dataStates.roSwitch);
                                       },
                                       child: Container(
                                         width: 15,
                                         height: 15,
                                         decoration: BoxDecoration(
-                                          color: reverseOsmosisSwitch &&
-                                                  systemSwitch
+                                          color: dataStates.roSwitch &&
+                                                  dataStates.systemSwitch
                                               ? Colors.red[700]
                                               : grayButton,
                                           borderRadius:
@@ -1420,6 +1051,116 @@ class _SimulationPageState extends State<SimulationPage> {
                                     ),
                                   ],
                                 ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 800,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 0 && sprinkle < 2 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 48.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 800,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 1 && sprinkle < 2 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 50.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 800,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 2 && sprinkle < 4 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 53.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 800,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 3 && sprinkle < 4 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 54.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 800,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 4 && sprinkle < 6 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 58.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 800,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 5 && sprinkle < 6 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 60.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 750,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 6 && sprinkle < 8 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 61.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 800,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 7 && sprinkle < 8 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 62.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 800,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 8 && sprinkle < 10 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 74.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 800,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 9 && sprinkle < 11 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 75.svg"),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 150,
+                              left: 750,
+                              child: Opacity(
+                                opacity:
+                                    sprinkle >= 10 && sprinkle < 11 ? 1.0 : 0,
+                                child: SvgPicture.asset(
+                                    "assets/images/Group 76.svg"),
                               ),
                             ),
                           ],

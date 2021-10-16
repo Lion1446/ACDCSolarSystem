@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:solarpumpingsystem/providers.dart';
 import 'package:solarpumpingsystem/themes.dart';
 
 class MainControlUnit extends StatelessWidget {
-  const MainControlUnit({Key? key, required this.systemSwitch})
-      : super(key: key);
-
-  final bool systemSwitch;
+  const MainControlUnit({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var dataStates = Provider.of<DataProviders>(context);
     return Container(
       width: 330,
       padding: EdgeInsets.all(10),
@@ -49,9 +49,9 @@ class MainControlUnit extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      systemSwitch ? "enabled" : "disabled",
+                      dataStates.systemSwitch ? "enabled" : "disabled",
                       style: fonts.component.copyWith(
-                        color: systemSwitch
+                        color: dataStates.systemSwitch
                             ? green.withOpacity(0.7)
                             : red.withOpacity(0.7),
                       ),

@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:solarpumpingsystem/themes.dart';
+
+import '../providers.dart';
 
 class SoilMoistureSensor extends StatelessWidget {
   const SoilMoistureSensor({
     Key? key,
-    required this.soilMoistureController,
-    required this.soilMoisture,
-    required this.soilMoistureThreshold,
-    required this.soilMoistureThresholdController,
   }) : super(key: key);
-
-  final TextEditingController soilMoistureThresholdController;
-  final TextEditingController soilMoistureController;
-  final double soilMoisture;
-  final double soilMoistureThreshold;
 
   @override
   Widget build(BuildContext context) {
+    var dataStates = Provider.of<DataProviders>(context);
     return Container(
       width: 330,
       padding: EdgeInsets.all(10),
@@ -58,9 +53,10 @@ class SoilMoistureSensor extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      soilMoisture.toString(),
+                      dataStates.soilMoisture.toString(),
                       style: fonts.component.copyWith(
-                        color: soilMoisture >= soilMoistureThreshold
+                        color: dataStates.soilMoisture >=
+                                dataStates.soilMoistureThreshold
                             ? green.withOpacity(0.7)
                             : red.withOpacity(0.7),
                       ),
@@ -88,19 +84,22 @@ class SoilMoistureSensor extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: soilMoistureThresholdController,
+                      controller: dataStates.soilMoistureThresholdController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$soilMoistureThreshold',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: soilMoistureThreshold >= 100 ? red : green),
+                        color: dataStates.soilMoistureThreshold >= 100
+                            ? red
+                            : green,
+                      ),
                     ),
                   ),
                 ),

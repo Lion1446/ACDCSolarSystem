@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:solarpumpingsystem/themes.dart';
+
+import '../providers.dart';
 
 class ReverseOsmosisUnit extends StatelessWidget {
   const ReverseOsmosisUnit({
     Key? key,
-    required this.reverseOsmosisSwitch,
-    required this.roBatteryDrainRate,
-    required this.roBatteryDrainRateController,
   }) : super(key: key);
-  final bool reverseOsmosisSwitch;
-  final TextEditingController roBatteryDrainRateController;
-  final double roBatteryDrainRate;
   @override
   Widget build(BuildContext context) {
+    var dataStates = Provider.of<DataProviders>(context);
+
     return Container(
       width: 330,
       padding: EdgeInsets.all(10),
@@ -54,9 +53,9 @@ class ReverseOsmosisUnit extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      reverseOsmosisSwitch ? "enabled" : "disabled",
+                      dataStates.reverseOsmosisSwitch ? "enabled" : "disabled",
                       style: fonts.component.copyWith(
-                        color: reverseOsmosisSwitch
+                        color: dataStates.reverseOsmosisSwitch
                             ? green.withOpacity(0.7)
                             : red.withOpacity(0.7),
                       ),
@@ -84,19 +83,21 @@ class ReverseOsmosisUnit extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: roBatteryDrainRateController,
+                      controller: dataStates.roBatteryDrainRateController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$roBatteryDrainRate',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: roBatteryDrainRate >= 100 ? red : green),
+                        color:
+                            dataStates.roBatteryDrainRate >= 20 ? red : green,
+                      ),
                     ),
                   ),
                 ),

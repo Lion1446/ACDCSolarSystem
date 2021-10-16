@@ -46,6 +46,17 @@ flutter:
     - assets/images/Background.png
     - assets/images/Gear.svg
     - assets/images/Main.svg
+    - assets/images/Group 48.svg
+    - assets/images/Group 50.svg
+    - assets/images/Group 53.svg
+    - assets/images/Group 54.svg
+    - assets/images/Group 58.svg
+    - assets/images/Group 60.svg
+    - assets/images/Group 61.svg
+    - assets/images/Group 62.svg
+    - assets/images/Group 74.svg
+    - assets/images/Group 75.svg
+    - assets/images/Group 76.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see

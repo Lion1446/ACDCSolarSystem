@@ -1,26 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:solarpumpingsystem/themes.dart';
+
+import '../providers.dart';
 
 class WaterPump extends StatelessWidget {
   const WaterPump({
     Key? key,
-    required this.waterFlowRateController,
-    required this.batteryDrainRateController,
-    required this.pumpSwitch,
-    required this.toWaterTank,
-    required this.batteryDrainRate,
-    required this.waterFlowRate,
   }) : super(key: key);
-
-  final TextEditingController waterFlowRateController;
-  final TextEditingController batteryDrainRateController;
-  final bool pumpSwitch;
-  final bool toWaterTank;
-  final double waterFlowRate;
-  final double batteryDrainRate;
   @override
   Widget build(BuildContext context) {
+    var dataStates = Provider.of<DataProviders>(context);
     return Container(
       width: 330,
       padding: EdgeInsets.all(10),
@@ -61,9 +52,9 @@ class WaterPump extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      pumpSwitch ? "enabled" : "disabled",
+                      dataStates.pumpSwitch ? "enabled" : "disabled",
                       style: fonts.component.copyWith(
-                        color: pumpSwitch
+                        color: dataStates.pumpSwitch
                             ? green.withOpacity(0.7)
                             : red.withOpacity(0.7),
                       ),
@@ -91,14 +82,14 @@ class WaterPump extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: waterFlowRateController,
+                      controller: dataStates.waterFlowRateController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$waterFlowRate',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
@@ -128,7 +119,7 @@ class WaterPump extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      toWaterTank ? "water tank" : "sprinkler",
+                      dataStates.toWaterTank ? "water tank" : "sprinkler",
                       style: fonts.component.copyWith(
                         color: green.withOpacity(0.7),
                       ),
@@ -157,19 +148,22 @@ class WaterPump extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: batteryDrainRateController,
+                      controller: dataStates.pumpBatteryDrainRateController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$batteryDrainRate',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: batteryDrainRate >= 100 ? red : green),
+                        color: dataStates.pumpBatteryDrainRate >= 100
+                            ? red
+                            : green,
+                      ),
                     ),
                   ),
                 ),

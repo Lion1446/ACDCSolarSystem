@@ -1,38 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:solarpumpingsystem/providers.dart';
 import 'package:solarpumpingsystem/themes.dart';
 
 class EnvironmentVariables extends StatelessWidget {
   const EnvironmentVariables({
     Key? key,
-    required this.sunBrightnessController,
-    required this.soilMoistureController,
-    required this.soilDryingRateController,
-    required this.soilMoisteningRateController,
-    required this.sunBrightness,
-    required this.minSunBrightness,
-    required this.soilMoisture,
-    required this.soilMoistureThreshold,
-    required this.soilDryingRate,
-    required this.soilDryingRateThreshold,
-    required this.soilMoisteningRate,
-    required this.soilMoisteningRateThreshold,
   }) : super(key: key);
-  final TextEditingController sunBrightnessController;
-  final TextEditingController soilMoistureController;
-  final TextEditingController soilDryingRateController;
-  final TextEditingController soilMoisteningRateController;
-  final double sunBrightness;
-  final double minSunBrightness;
-  final double soilMoisture;
-  final double soilMoistureThreshold;
-  final double soilDryingRate;
-  final double soilDryingRateThreshold;
-  final double soilMoisteningRate;
-  final double soilMoisteningRateThreshold;
 
   @override
   Widget build(BuildContext context) {
+    var dataStates = Provider.of<DataProviders>(context);
     return Container(
       width: 330,
       padding: EdgeInsets.all(10),
@@ -72,20 +51,23 @@ class EnvironmentVariables extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: sunBrightnessController,
+                      controller: dataStates.sunBrightnessController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$sunBrightness',
+                        hintText: "",
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color:
-                              sunBrightness >= minSunBrightness ? green : red),
+                        color: dataStates.sunBrightness >=
+                                dataStates.minSunBrightness
+                            ? green
+                            : red,
+                      ),
                     ),
                   ),
                 ),
@@ -110,21 +92,23 @@ class EnvironmentVariables extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
+                      controller: dataStates.soilMoistureController,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: soilMoistureController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$soilMoisture',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: soilMoisture >= soilMoistureThreshold
-                              ? green
-                              : red),
+                        color: dataStates.soilMoisture >=
+                                dataStates.soilMoistureThreshold
+                            ? green
+                            : red,
+                      ),
                     ),
                   ),
                 ),
@@ -149,21 +133,23 @@ class EnvironmentVariables extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: soilDryingRateController,
+                      controller: dataStates.soilDryingRateController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$soilDryingRate',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: soilDryingRate <= soilDryingRateThreshold
-                              ? green
-                              : red),
+                        color: dataStates.soilDryingRate <=
+                                dataStates.soilDryingRateThreshold
+                            ? green
+                            : red,
+                      ),
                     ),
                   ),
                 ),
@@ -188,22 +174,23 @@ class EnvironmentVariables extends StatelessWidget {
                   flex: 2,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: TextField(
+                    child: TextFormField(
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      controller: soilMoisteningRateController,
+                      controller: dataStates.soilMoisteningRateController,
                       decoration: InputDecoration.collapsed(
-                        hintText: '$soilMoisteningRate',
+                        hintText: '',
                         hintStyle: fonts.component
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color:
-                              soilMoisteningRate >= soilMoisteningRateThreshold
-                                  ? green
-                                  : red),
+                        color: dataStates.soilMoisteningRate >=
+                                dataStates.soilMoisteningRateThreshold
+                            ? green
+                            : red,
+                      ),
                     ),
                   ),
                 ),

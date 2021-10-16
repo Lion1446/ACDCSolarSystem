@@ -51,17 +51,11 @@ class Battery extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: TextFormField(
-                      initialValue: '${dataStates.batteryPercentage}',
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      // controller: batteryPercentageController,
-                      onChanged: (val) {
-                        if (val.isNotEmpty) {
-                          dataStates.batteryPercentage = double.parse(val);
-                        }
-                      },
+                      controller: dataStates.batteryPercentageController,
                       decoration: InputDecoration.collapsed(
                         hintText: "",
                         hintStyle: fonts.component
@@ -126,16 +120,11 @@ class Battery extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: TextFormField(
-                      initialValue: '${dataStates.batteryIdleDrainRate}',
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}'))
                       ],
-                      onChanged: (val) {
-                        if (val.isNotEmpty) {
-                          dataStates.batteryIdleDrainRate = double.parse(val);
-                        }
-                      },
+                      controller: dataStates.batteryIdleDrainRateController,
                       decoration: InputDecoration.collapsed(
                         hintText: "",
                         hintStyle: fonts.component
