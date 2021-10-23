@@ -336,9 +336,9 @@ class DataProviders extends ChangeNotifier {
           waterVolumeThresholdController.text = maxWaterVolume.toString();
         }
         if (data < 0) data = 0;
-        pumpBatteryDrainRate = data;
+        waterVolumeThreshold = data;
       } else {
-        pumpBatteryDrainRate = 0.0;
+        waterVolumeThreshold = 0.0;
         waterVolumeThresholdController.text = "0";
       }
       notifyListeners();

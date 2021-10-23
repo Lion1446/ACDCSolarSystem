@@ -106,8 +106,8 @@ class EnvironmentVariables extends StatelessWidget {
                       style: fonts.component.copyWith(
                         color: dataStates.soilMoisture >=
                                 dataStates.soilMoistureThreshold
-                            ? green
-                            : red,
+                            ? green.withOpacity(0.5)
+                            : red.withOpacity(0.5),
                       ),
                     ),
                   ),

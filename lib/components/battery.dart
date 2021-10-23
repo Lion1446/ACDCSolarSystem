@@ -62,10 +62,11 @@ class Battery extends StatelessWidget {
                             .copyWith(color: Colors.black.withOpacity(0.5)),
                       ),
                       style: fonts.component.copyWith(
-                          color: dataStates.batteryPercentage >=
-                                  dataStates.batteryPercentageThreshold
-                              ? green
-                              : red),
+                        color: dataStates.batteryPercentage >=
+                                dataStates.batteryPercentageThreshold
+                            ? green.withOpacity(0.5)
+                            : red.withOpacity(0.5),
+                      ),
                     ),
                   ),
                 ),
